@@ -82,14 +82,14 @@ public class FragmentList extends Fragment {
         //Array Uber
         for (int i = 0; i < 5; i++) {
             MeioTransporte transporte = new MeioTransporte();
-            transporte.setNome("Uber");
-            transporte.setCategoria("Categoria" + i);
+            transporte.setNome("Uber" + i);
+            transporte.setDistancia("Distancia" + i);
             transporte.setPreco("Preço" + i);
             transporte.setTempo("Tempo" + i);
-            if(transporte.getNome().equals("Uber")) {
+            if(transporte.getNome().equals("Uber" + i)) {
                 transporte.setImagem(R.drawable.ic_car);
             }
-            else if(transporte.getNome().equals("Transporte Público")) {
+            else if(transporte.getNome().equals("Transporte Público" + i)) {
                 transporte.setImagem(R.drawable.ic_bus);
             }
             listaMeios.add(transporte);
@@ -98,14 +98,14 @@ public class FragmentList extends Fragment {
         //Array transporte
         for (int i = 0; i < 5; i++) {
             MeioTransporte transporte = new MeioTransporte();
-            transporte.setNome("Transporte Público");
-            transporte.setCategoria("Ônibus" + i);
+            transporte.setNome("Transporte Público" + i);
+            transporte.setDistancia("Distancia" + i);
             transporte.setPreco("Preço" + i);
             transporte.setTempo("Tempo" + i);
-            if(transporte.getNome().equals("Uber")) {
+            if(transporte.getNome().equals("Uber" + i)) {
                 transporte.setImagem(R.drawable.ic_car);
             }
-            else if(transporte.getNome().equals("Transporte Público")) {
+            else if(transporte.getNome().equals("Transporte Público" + i)) {
                 transporte.setImagem(R.drawable.ic_bus);
             }
             listaMeios.add(transporte);
@@ -115,15 +115,15 @@ public class FragmentList extends Fragment {
         for(MeioTransporte transporte : listaMeios){
             HashMap<String, String> hm = new HashMap<String, String>();
             hm.put("listview_nome", transporte.getNome());
-            hm.put("listview_categoria", transporte.getCategoria());
+            hm.put("listview_distancia", transporte.getDistancia());
             hm.put("listview_preco", transporte.getPreco());
             hm.put("listview_tempo", transporte.getTempo());
             hm.put("listview_imagem", Integer.toString(transporte.getImagem()));
             aList.add(hm);
         }
 
-        String[] from = {"listview_imagem", "listview_nome", "listview_categoria", "listview_preco", "listview_tempo"};
-        int[] to = {R.id.listview_imagem, R.id.listview_item_nome, R.id.listview_item_categoria, R.id.listview_item_preco, R.id.listview_item_tempo};
+        String[] from = {"listview_imagem", "listview_nome", "listview_distancia", "listview_preco", "listview_tempo"};
+        int[] to = {R.id.listview_imagem, R.id.listview_item_nome, R.id.listview_item_distancia, R.id.listview_item_preco, R.id.listview_item_tempo};
 
         SimpleAdapter simpleAdapter = new SimpleAdapter(getActivity(), aList, R.layout.activity_list, from, to);
         ListView androidListView = (ListView) view.findViewById(R.id.list_view);

@@ -2,6 +2,7 @@ package a2mobilityapp.com.a2mobilityapp;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,73 +17,21 @@ import com.google.android.gms.common.api.GoogleApi;
 
 public class MainActivity extends AppCompatActivity{
 
-    private static final String TAG = "MainActivity";
-    private static final int ERRO_DIALOG_REQUEST = 9001;
+    private static int SPLASH_TIME_OUT = 3000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(isServiceOK()){
-            init();
-        }
-
-        Button btnCadastrar = (Button) findViewById(R.id.btnCadastrar);
-        btnCadastrar.setOnClickListener(new View.OnClickListener() {
+        new Handler().postDelayed(new Runnable() {
             @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Cadastrar! Construindo...", Toast.LENGTH_SHORT).show();
+            public void run() {
+                Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(loginIntent);
+                finish();
             }
-        });
-
-        Button btnEntrar = (Button) findViewById(R.id.btnEntrar);
-        btnEntrar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Entrar! Construindo...", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        TextView txtEsqueceuSenha = (TextView) findViewById(R.id.txtEsqueceuSenha);
-        txtEsqueceuSenha.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Esqueceu a senha! Construindo...", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void init(){
-        Button btnMap = (Button) findViewById(R.id.btnMap);
-        btnMap.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, MenuSliding.class);
-                startActivity(intent);
-            }
-        });
-    }
-
-    public boolean isServiceOK(){
-        Log.d(TAG, "isServiceOK: Checando versão dos serviços do Google");
-
-        int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(MainActivity.this);
-
-        if(available == ConnectionResult.SUCCESS){
-            //conectado ao Google com sucesso e é possível executar requests
-            Log.d(TAG, "isServiceOK: Serviço Google Play está funcionando");
-            return true;
-        }
-        else if(GoogleApiAvailability.getInstance().isUserResolvableError(available)){
-            //ocorreu um erro possível de resolver
-            Log.d(TAG, "isServiceOK: Ocorreu um erro possível de ser resolvido");
-            Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(MainActivity.this, available, ERRO_DIALOG_REQUEST);
-            dialog.show();
-        } else{
-            Toast.makeText(this, "Você não pode executar requests", Toast.LENGTH_SHORT);
-        }
-        return false;
+        }, SPLASH_TIME_OUT);
     }
 
 }

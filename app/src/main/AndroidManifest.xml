@@ -30,7 +30,8 @@
         </activity>
         <activity
             android:name=".MenuSliding"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
+        <activity android:name=".LoginActivity"></activity>
     </application>
 
 </manifest>
