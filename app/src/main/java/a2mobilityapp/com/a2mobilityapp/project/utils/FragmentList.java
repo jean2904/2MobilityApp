@@ -1,4 +1,4 @@
-package a2mobilityapp.com.a2mobilityapp;
+package a2mobilityapp.com.a2mobilityapp.project.utils;
 
 import android.content.Context;
 import android.net.Uri;
@@ -9,6 +9,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+
+import a2mobilityapp.com.a2mobilityapp.R;
+import a2mobilityapp.com.a2mobilityapp.project.bean.MeioTransporte;
+import a2mobilityapp.com.a2mobilityapp.project.bean.TransportePublico;
+import a2mobilityapp.com.a2mobilityapp.project.bean.Uber;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +34,8 @@ public class FragmentList extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
+    private static Uber[] uber;
+    private static ArrayList<MeioTransporte> listaMeios = new ArrayList<>();
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -48,8 +55,18 @@ public class FragmentList extends Fragment {
      * @return A new instance of fragment FragmentList.
      */
     // TODO: Rename and change types and number of parameters
-    public static FragmentList newInstance(String param1, String param2) {
+    public static FragmentList newInstance(String param1, String param2, Uber[] uber, TransportePublico transportePublico) {
         FragmentList fragment = new FragmentList();
+        listaMeios.add(setTransportePublico(transportePublico));
+        for(int i=0;i<uber.length-1;i++){
+            MeioTransporte transporte = new MeioTransporte();
+            transporte.setDistancia(Float.toString(uber[i].getDistance()) + " km");
+            transporte.setNome(uber[i].getDisplay_name());
+            transporte.setPreco(uber[i].getEstimate());
+            transporte.setTempo(uber[i].getDuration()+"");
+            listaMeios.add(transporte);
+        }
+
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -66,51 +83,20 @@ public class FragmentList extends Fragment {
         }
 
     }
-
+    public static MeioTransporte setTransportePublico(TransportePublico transportePublico){
+        MeioTransporte transporte = new MeioTransporte();
+        transporte.setNome("Transporte Publico");
+        transporte.setDistancia(transportePublico.getDistancia());
+        transporte.setPreco(transportePublico.getPreco());
+        transporte.setTempo(transportePublico.getTempo());
+        return transporte;
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_list, container, false);
-
-
-
-        //LISTVIEW
-        ArrayList<MeioTransporte> listaMeios = new ArrayList<MeioTransporte>();
         List<HashMap<String, String>> aList = new ArrayList<HashMap<String, String>>();
-
-        //Array Uber
-        for (int i = 0; i < 5; i++) {
-            MeioTransporte transporte = new MeioTransporte();
-            transporte.setNome("Uber" + i);
-            transporte.setDistancia("Distancia" + i);
-            transporte.setPreco("Preço" + i);
-            transporte.setTempo("Tempo" + i);
-            if(transporte.getNome().equals("Uber" + i)) {
-                transporte.setImagem(R.drawable.ic_car);
-            }
-            else if(transporte.getNome().equals("Transporte Público" + i)) {
-                transporte.setImagem(R.drawable.ic_bus);
-            }
-            listaMeios.add(transporte);
-        }
-
-        //Array transporte
-        for (int i = 0; i < 5; i++) {
-            MeioTransporte transporte = new MeioTransporte();
-            transporte.setNome("Transporte Público" + i);
-            transporte.setDistancia("Distancia" + i);
-            transporte.setPreco("Preço" + i);
-            transporte.setTempo("Tempo" + i);
-            if(transporte.getNome().equals("Uber" + i)) {
-                transporte.setImagem(R.drawable.ic_car);
-            }
-            else if(transporte.getNome().equals("Transporte Público" + i)) {
-                transporte.setImagem(R.drawable.ic_bus);
-            }
-            listaMeios.add(transporte);
-        }
-
         //Associando dados do Array ao hashmap
         for(MeioTransporte transporte : listaMeios){
             HashMap<String, String> hm = new HashMap<String, String>();
@@ -118,7 +104,7 @@ public class FragmentList extends Fragment {
             hm.put("listview_distancia", transporte.getDistancia());
             hm.put("listview_preco", transporte.getPreco());
             hm.put("listview_tempo", transporte.getTempo());
-            hm.put("listview_imagem", Integer.toString(transporte.getImagem()));
+            //hm.put("listview_imagem", Integer.toString(transporte.getImagem()));
             aList.add(hm);
         }
 
@@ -149,6 +135,21 @@ public class FragmentList extends Fragment {
                     + " must implement OnFragmentInteractionListener");
         }
     }
+    public static Uber[] getUber() {
+        return uber;
+    }
+
+    public static void setUber(Uber[] uber) {
+        FragmentList.uber = uber;
+    }
+
+    public static ArrayList<MeioTransporte> getListaMeios() {
+        return listaMeios;
+    }
+
+    public static void setListaMeios(ArrayList<MeioTransporte> listaMeios) {
+        FragmentList.listaMeios = listaMeios;
+    }
 
     @Override
     public void onDetach() {
@@ -170,4 +171,7 @@ public class FragmentList extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+
 }
+

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FragmentList"
+    tools:context=".project.utils.FragmentList"
     android:background="#ffffff"
     android:clickable="true"
     android:id="@+id/relative_fragment">

@@ -1,15 +1,16 @@
-package a2mobilityapp.com.a2mobilityapp;
+package a2mobilityapp.com.a2mobilityapp.project.bean;
+
+/**
+ * Created by limjo15 on 5/11/2018.
+ */
 
 public class MeioTransporte {
+
     private String nome;
     private String distancia;
     private String preco;
     private String tempo;
     private Integer imagem;
-
-    public MeioTransporte(){
-
-    }
 
     public String getNome() {
         return nome;

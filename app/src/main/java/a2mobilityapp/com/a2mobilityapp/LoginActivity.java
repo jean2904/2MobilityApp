@@ -35,14 +35,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        Button btnEntrar = (Button) findViewById(R.id.btnEntrar);
-        btnEntrar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Entrar! Construindo...", Toast.LENGTH_SHORT).show();
-            }
-        });
-
         TextView txtEsqueceuSenha = (TextView) findViewById(R.id.txtEsqueceuSenha);
         txtEsqueceuSenha.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,8 +45,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void init(){
-        Button btnMap = (Button) findViewById(R.id.btnMap);
-        btnMap.setOnClickListener(new View.OnClickListener() {
+        Button btnEntrar = (Button) findViewById(R.id.btnEntrar);
+        btnEntrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(LoginActivity.this, MenuSliding.class);

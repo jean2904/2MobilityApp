@@ -1,38 +1,38 @@
 package a2mobilityapp.com.a2mobilityapp;
 
+
+
+import android.Manifest;
+import android.app.ProgressDialog;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.Uri;
-import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.os.AsyncTask;
+import android.os.StrictMode;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.Toast;
+
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.widget.FrameLayout;
-import android.widget.Toast;
-import android.widget.Button;
-import android.content.Intent;
-import android.view.View;
 
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -41,6 +41,51 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
+
+import java.util.ArrayList;
+
+import a2mobilityapp.com.a2mobilityapp.project.bean.Endereco;
+import a2mobilityapp.com.a2mobilityapp.project.bean.TransportePublico;
+import a2mobilityapp.com.a2mobilityapp.project.bean.Uber;
+import a2mobilityapp.com.a2mobilityapp.project.services.TransporteOperation;
+import a2mobilityapp.com.a2mobilityapp.project.services.UberOperation;
+import a2mobilityapp.com.a2mobilityapp.project.bean.MeioTransporte;
+import a2mobilityapp.com.a2mobilityapp.project.utils.FragmentList;
+import a2mobilityapp.com.a2mobilityapp.project.utils.HttpDataHandler;
+
+
+import com.uber.sdk.android.core.UberSdk;
+import com.uber.sdk.android.core.auth.AccessTokenManager;
+import com.uber.sdk.android.rides.RideParameters;
+import com.uber.sdk.core.auth.Scope;
+import com.uber.sdk.rides.auth.OAuth2Credentials;
+import com.uber.sdk.rides.client.CredentialsSession;
+import com.uber.sdk.rides.client.ServerTokenSession;
+import com.uber.sdk.rides.client.SessionConfiguration;
+import com.uber.sdk.rides.client.UberRidesApi;
+import com.uber.sdk.rides.client.model.Product;
+import com.uber.sdk.rides.client.model.ProductsResponse;
+import com.uber.sdk.rides.client.model.RideEstimate;
+import com.uber.sdk.rides.client.model.RideRequestParameters;
+import com.uber.sdk.rides.client.services.RidesService;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import retrofit2.Response;
+
+import static java.lang.Double.parseDouble;
+import static java.lang.Float.*;
+import static java.lang.Thread.sleep;
+
 
 public class MenuSliding extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, FragmentList.OnFragmentInteractionListener {
@@ -51,6 +96,8 @@ public class MenuSliding extends AppCompatActivity
     private static final String FINAL_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
     //localização exata
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+
+
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final float DEFAULT_ZOOM = 15f;
     //variaveis
@@ -62,6 +109,17 @@ public class MenuSliding extends AppCompatActivity
     //----ListView
     private FrameLayout fragmentContainer;
     private Button btnComparar;
+
+
+    private EditText enderecoInicial;
+    private EditText enderecoFinal;
+    private Button btnCompara;
+    protected Integer comparativo;
+    private Button btnImprimi;
+    private Endereco endereco;
+    private Uber[] uber;
+    private ArrayList<MeioTransporte> listaMeios = new ArrayList<>();
+    TransportePublico transpPublico = null;
 
 
     @Override
@@ -83,25 +141,57 @@ public class MenuSliding extends AppCompatActivity
         //----Google API
         getLocationPermission();
 
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                .permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        //geo-localizacao
+        enderecoInicial = findViewById(R.id.edit_origem);
+        enderecoFinal = findViewById(R.id.edit_destino);
+        btnCompara = findViewById(R.id.btn_comparar);
         fragmentContainer = (FrameLayout) findViewById(R.id.fragment_container);
 
-        btnComparar = (Button) findViewById(R.id.btn_comparar);
-        btnComparar.setOnClickListener(new View.OnClickListener() {
+        btnCompara.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openFragment();
+                runOnUiThread(new Runnable(){
+                    public void run() {
+                        endereco = new Endereco();
+                        endereco.setNominalPartida(enderecoInicial.getText().toString());
+                        endereco.setNominalChegada(enderecoFinal.getText().toString());
+                        chamaUber();
+                        TransporteOperation transp = new TransporteOperation();
+                        String resposta = transp.getValuesTransport(endereco);
+                        transpPublico = transp.getTransporte(resposta);
+                        openFragment();
+                    }
+                });
+
             }
         });
     }
 
     public void openFragment(){
-        FragmentList fragmentList = FragmentList.newInstance("1", "2");
+        FragmentList fragmentList = FragmentList.newInstance("1", "2",uber,transpPublico);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction =  fragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
                 android.R.anim.slide_in_left, android.R.anim.slide_out_right);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.add(R.id.fragment_container, fragmentList, "LIST_FRAGMENT").commit();
+    }
+
+
+    public void chamaUber(){
+        runOnUiThread(new Runnable(){
+            public void run() {
+                UberOperation uberOperation = new UberOperation();
+                uberOperation.chamaLatitudeLongitude(endereco);
+                String response = uberOperation.getValuesUber(endereco);
+                uber = uberOperation.valoresUber(response);
+            }
+        });
+
     }
 
     @Override
@@ -193,34 +283,38 @@ public class MenuSliding extends AppCompatActivity
 
 
     private void getDeviceLocation(){
-        Log.d(TAG, "getDeviceLocation: getting the devices current location");
+        runOnUiThread(new Runnable(){
+            public void run() {
+                Log.d(TAG, "getDeviceLocation: getting the devices current location");
 
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+                mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(MenuSliding.this);
 
-        try{
-            if(mLocationPermissionGranted){
+                try{
+                    if(mLocationPermissionGranted){
 
-                final Task location = mFusedLocationProviderClient.getLastLocation();
-                location.addOnCompleteListener(new OnCompleteListener() {
-                    @Override
-                    public void onComplete(@NonNull Task task) {
-                        if(task.isSuccessful()){
-                            Log.d(TAG, "onComplete: found location!");
-                            Location currentLocation = (Location) task.getResult();
+                        final Task location = mFusedLocationProviderClient.getLastLocation();
+                        location.addOnCompleteListener(new OnCompleteListener() {
+                            @Override
+                            public void onComplete(@NonNull Task task) {
+                                if(task.isSuccessful()){
+                                    Log.d(TAG, "onComplete: found location!");
+                                    Location currentLocation = (Location) task.getResult();
 
-                            moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
-                                    DEFAULT_ZOOM);
+                                    //moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
+                                    //      DEFAULT_ZOOM);
 
-                        }else{
-                            Log.d(TAG, "onComplete: current location is null");
-                            Toast.makeText(MenuSliding.this, "unable to get current location", Toast.LENGTH_SHORT).show();
-                        }
+                                }else{
+                                    Log.d(TAG, "onComplete: current location is null");
+                                    Toast.makeText(MenuSliding.this, "unable to get current location", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
                     }
-                });
+                }catch (SecurityException e){
+                    Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage() );
+                }
             }
-        }catch (SecurityException e){
-            Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage() );
-        }
+        });
     }
 
     private void getLocationPermission() {
