@@ -44,6 +44,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+
     private void init(){
         Button btnEntrar = (Button) findViewById(R.id.btnEntrar);
         btnEntrar.setOnClickListener(new View.OnClickListener() {
